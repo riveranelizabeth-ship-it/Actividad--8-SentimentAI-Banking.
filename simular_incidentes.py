@@ -9,7 +9,7 @@ RECALL_MIN = 0.85
 REQUIRED = 2
 
 
-def simulate(rows):
+def simulate(rows, on_window=None):
     if len(rows) != 300 or sum(r["etiqueta"] == "negativo" for r in rows) != 100:
         raise ValueError("Se requieren las 300 solicitudes de referencia, con 100 negativos.")
     windows, events = [], []
@@ -50,6 +50,7 @@ def simulate(rows):
                 "p95_ms": round(p95, 4), "cumplimiento_slo": (len(rows) - failed) / len(rows),
                 "consumo_presupuesto": failed / allowed, "recall_negativo": recall,
             })
+            previous_events = len(events)
             if bad and not active and bad_streak >= REQUIRED:
                 active = True
                 action = "retirar demora de prueba" if incident == "latencia" else "rollback a perfil estable"
@@ -61,6 +62,9 @@ def simulate(rows):
                 active = False
                 events.append({"incidente": incident, "ventana": step, "evento": "cierre",
                                "accion": "recuperación verificada"})
+            if on_window is not None:
+                event = events[-1] if len(events) > previous_events else None
+                on_window(windows[-1], event)
     return windows, events
 
 

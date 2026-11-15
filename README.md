@@ -13,6 +13,8 @@ Este informe presenta la línea base de SentimentAI Banking en Colab, la respues
 
 **Cierre del informe.** [Análisis de resultados](#5-análisis-de-resultados) y [conclusiones](#6-conclusiones).
 
+**Archivos para entrega.** [Documento técnico (PDF)](entrega/Actividad_8_Documento_Tecnico.pdf) y [evidencias de implementación (PDF)](entrega/Actividad_8_Evidencias.pdf).
+
 **Código y evidencias.** [Notebook de línea base](01_linea_base.ipynb), [notebook de incidentes](02_incidentes.ipynb), [script de simulación y alertas](simular_incidentes.py), [prueba de detección de *data drift*](#prueba-de-detección-de-data-drift) y [carpeta de evidencias](evidencias/).
 
 ## 1. Monitorización y observabilidad
@@ -49,7 +51,7 @@ MLflow registró la corrida `linea-base` en el experimento `Actividad 8 - Sentim
 
 El registro por solicitud incluye fecha y hora UTC, `trace_id`, revisión del modelo, ID del ejemplo, etiqueta, predicción, duración total, estado y tipo de error. Con el mismo `trace_id` se consultan los tiempos de preprocesamiento e inferencia en el CSV. El registro excluye el texto del comentario.
 
-El tablero operativo se diseñó para actualizarse al cerrar cada ventana y mostrar latencia p95, cumplimiento del SLO, consumo de presupuesto, recall negativo y estado de las alertas. En Colab, el gráfico muestra latencia y recall con las marcas de alerta y cierre. MLflow conserva las métricas por ventana y el archivo de eventos. El tablero de evidencia se genera al terminar la reproducción. La actualización en vivo es parte del diseño operativo.
+El tablero original de Colab presenta el resumen de la corrida. En una segunda ejecución, el tablero de simulación se actualizó al procesar cada ventana, con latencia, cumplimiento del SLO, presupuesto consumido, recall negativo y estado del incidente. Los eventos se mostraron al activar la respuesta y al verificar el cierre. MLflow conserva las métricas por ventana y los artefactos de la corrida de Colab.
 
 La prueba de *data drift* comparó la longitud de los comentarios y la proporción de palabras fuera del vocabulario de referencia. Los resultados se presentan en la sección 4.
 
@@ -79,6 +81,8 @@ Los dos runbooks de incidentes agrupan avisos por incidente activo y verifican e
 **Runbook de degradación.** Confirmar dos ventanas con recall bajo y verificar que el perfil degradado esté activo. Restaurar el perfil estable y medir el recall en dos ventanas consecutivas con ejemplos etiquetados. Registrar el cierre después de comprobar la recuperación.
 
 ### Resultados de la simulación
+
+La segunda ejecución emitió cada actualización durante el procesamiento. El [registro con marca de tiempo](evidencias/incidentes/monitoreo_en_vivo.jsonl) y el [PDF de evidencias](entrega/Actividad_8_Evidencias.pdf) muestran el pico aislado, la alerta y la recuperación. El [tablero de simulación](tablero_en_vivo.py) permite reproducir esa ejecución con el CSV de línea base.
 
 ![Dashboard de Colab con latencia y recall por ventana](evidencias/incidentes/dashboard_incidentes.png)
 
