@@ -24,6 +24,8 @@ El SLO propuesto mantiene el criterio de la Actividad 8 como objetivo interno de
 
 La instancia única cuesta USD 92 en el mes simulado, pero su límite de capacidad solo le permite atender como máximo el 72.73 % de la demanda total con el patrón definido. Una instancia mayor cuesta USD 185.60. Las réplicas cuestan USD 196 y aportan capacidad de recuperación frente a la pérdida de una réplica. El diferencial de USD 10.40 mensuales se justifica para el piloto si la prueba de fallo y los objetivos de calidad se cumplen. El anexo separa capacidad teórica y SLO observado. Las tarifas son hipotéticas y los costos excluyen revisión humana, impuestos y egreso extraordinario.
 
+Dentro del diseño horizontal, mantener tres réplicas activas todo el mes costaría USD 256. Ajustar la capacidad a dos réplicas durante la carga normal y tres durante el pico reduce el costo a USD 196. El ahorro simulado es de USD 60 mensuales (23.4 %), con la misma capacidad útil prevista de 18 solicitudes/s durante el pico. La estimación supone que la tercera réplica está lista al comenzar el pico.
+
 Con enfoque FinOps, el responsable técnico etiqueta costos por entorno y versión. Producto y FinOps revisan semanalmente costo por 1,000 solicitudes completas, tráfico, utilización, rechazos y gasto de telemetría. El costo unitario se acompaña de la tasa de cumplimiento para que un aparente ahorro por rechazar solicitudes sea visible. Un aumento de 20 % sobre el costo unitario presupuestado abre revisión de demanda, recursos y retención de logs antes de modificar capacidad. La referencia metodológica es [FinOps Foundation, Unit Economics](https://www.finops.org/framework/capabilities/unit-economics/).
 
 ## 3. Auditoría de gobernanza, ética y cumplimiento
@@ -35,16 +37,18 @@ Con enfoque FinOps, el responsable técnico etiqueta costos por entorno y versi�
 | Privacidad y legal | Un comentario real puede identificar a una persona o incluir datos de una operación. Un proveedor de nube y sus subprocesadores amplían el perímetro. | Inventariar tratamientos, validar finalidad y aviso, limitar texto y retención, cifrar y restringir accesos. Revisar con Jurídico la relación con proveedor, subprocesadores, ubicación y transferencias cuando apliquen. Documentar el encuadre sectorial antes de recibir datos reales. |
 | Trazabilidad | La predicción pierde valor para auditoría si se desconoce la versión o si se registra texto innecesario. | Registrar ID de traza, modelo, fecha, tiempos, resultado y decisión humana vinculada cuando exista. Mantener el texto fuera de logs operativos y conservar bitácoras con acceso limitado. |
 
+El recall de negativos por tema se eligió porque mide la capacidad de detectar los mensajes de insatisfacción que interesa priorizar. Los cinco casos omitidos orientan una revisión cualitativa de la etiqueta, la redacción y el contexto antes de atribuirles una causa. Cualquier ajuste se evalúa en una muestra independiente para comprobar su efecto global y por tema.
+
 La revisión se organiza conforme a [NIST AI RMF 1.0](https://nvlpubs.nist.gov/nistpubs/AI/NIST.AI.100-1.pdf): Gobernar asigna responsables, Mapear delimita el caso de uso, Medir incorpora rendimiento y disparidades, y Gestionar define mitigación y reversión. La revisión jurídica toma como referencia la [LFPDPPP](https://www.diputados.gob.mx/LeyesBiblio/pdf/LFPDPPP.pdf), en particular los principios de su artículo 5. Los controles se proponen para un despliegue futuro con datos reales. El ejercicio con datos sintéticos permite revisar el diseño y deja la validación jurídica y técnica del servicio real como condición de autorización.
 
 ## 4. Plan de escalamiento responsable
 
-| Fase | Responsable | Criterio para avanzar |
-| --- | --- | --- |
-| Pruebas en entorno aislado | Plataforma y MLOps | Medir latencia, recursos y SLO en carga normal, pico y pérdida de una réplica. Comprobar recuperación y trazabilidad. |
-| Evaluación en sombra | Producto, Calidad y Privacidad | Validar controles de datos, etiquetar una muestra independiente y comprobar recall negativo global ≥ 90 %. Las predicciones se comparan con la revisión humana. |
-| Piloto con 5 % y después 25 % del tráfico elegible | Producto y Operaciones | Cumplir el SLO, mantener recall global ≥ 90 %, revisar cualquier brecha por tema mayor a 10 puntos con muestra suficiente y comprobar costo unitario dentro de 120 % del plan. |
-| Ampliación y seguimiento | Producto, MLOps, FinOps y Jurídico | Documentar aceptación de riesgos, prueba de fallo y capacidad de revisión. Revisar calidad semanalmente y costo por versión. |
+| Fase | Responsable | Criterio para avanzar | Evidencia de aprobación |
+| --- | --- | --- | --- |
+| Pruebas en entorno aislado | Plataforma y MLOps | Medir latencia, recursos y SLO en carga normal, pico y pérdida de una réplica. Comprobar recuperación y trazabilidad. | Bitácora de pruebas de carga y fallo, con métricas y trazas. |
+| Evaluación en sombra | Producto, Calidad y Privacidad | Validar controles de datos, etiquetar una muestra independiente y comprobar recall negativo global ≥ 90 %. Las predicciones se comparan con la revisión humana. | Validación de privacidad y registro de revisión humana sobre la muestra etiquetada. |
+| Piloto con 5 % y después 25 % del tráfico elegible | Producto y Operaciones | Cumplir el SLO, mantener recall global ≥ 90 %, revisar cualquier brecha por tema mayor a 10 puntos con muestra suficiente y comprobar costo unitario dentro de 120 % del plan. | Tablero del SLO, reporte de calidad por tema y cálculo de costo unitario. |
+| Ampliación y seguimiento | Producto, MLOps, FinOps y Jurídico | Documentar aceptación de riesgos, prueba de fallo y capacidad de revisión. Revisar calidad semanalmente y costo por versión. | Registro de decisión con responsables, versión aprobada y riesgos aceptados. |
 
 Ante dos ventanas consecutivas fuera del SLO, Operaciones detiene el aumento de tráfico y aplica el runbook correspondiente. Si el recall cae por debajo del umbral sobre muestra suficiente, MLOps restaura la última versión aprobada y verifica la recuperación. Ante un incidente de privacidad, se corta el ingreso afectado y se activa el protocolo correspondiente. La detección de drift abre una revisión de calidad antes de decidir un reentrenamiento.
 

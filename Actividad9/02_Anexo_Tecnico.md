@@ -15,6 +15,15 @@ Mes de 720 h. La demanda normal es de 2 solicitudes/s durante 600 h y la demanda
 
 Cómputo = instancias × horas × tarifa. Las tarifas supuestas son USD 0.10/h estándar y USD 0.23/h vertical. El componente compartido agrupa registro, almacenamiento y red interna. En horizontal incluye un presupuesto adicional para el balanceador. Solicitudes atendibles = suma de mínimo entre demanda y capacidad por intervalo × segundos. El cálculo supone estado estable y ausencia de cola persistente, reintentos y fallas. Costo unitario = costo total / solicitudes atendibles × 1,000. Las cifras modelan un techo de atención, sin acreditar latencia ni disponibilidad.
 
+### Ahorro por ajustar las réplicas a la demanda
+
+| Variante horizontal | Horas-réplica al mes | Cómputo (USD) | Compartidos (USD) | Total (USD) |
+| --- | ---: | ---: | ---: | ---: |
+| Tres réplicas fijas | 3 × 720 = 2,160 | 216 | 40 | 256 |
+| Dos en horario normal y tres en pico | 2 × 600 + 3 × 120 = 1,560 | 156 | 40 | 196 |
+
+El ajuste evita 600 horas-réplica al mes. El ahorro mensual es USD 60, equivalente a 60 / 256 = 23.4 %. Las dos variantes ofrecen 18 solicitudes/s útiles en el pico bajo los supuestos del caso. La comparación supone precalentamiento oportuno y excluye el costo adicional de arranque o de mantener réplicas extra frente a ráfagas imprevistas.
+
 Si se requiere conservar 12/s al perder cualquier zona durante el pico, cuatro réplicas distribuidas 2 + 2 añaden USD 12 al mes bajo el mismo patrón. El costo total sería USD 208 y USD 0.0219 por 1,000 solicitudes atendibles. La cotización y el gasto real dependen del proveedor, región, tráfico, retención de logs y revisión humana.
 
 ## B. Desempeño y recursos
@@ -46,6 +55,8 @@ Se cruzó el ID de cada solicitud de la Actividad 8 con el tema del conjunto sin
 | Tarjetas | 10 | 10 | 0 | 100 % |
 | Transferencias | 10 | 9 | 1 | 90 % |
 | Global | 100 | 95 | 5 | 95 % |
+
+Se eligió el recall de negativos porque una omisión puede quitar prioridad a un comentario que requiere atención. Los cinco casos omitidos se identificaron para revisión de etiqueta, redacción y contexto. La causa de esas omisiones queda indeterminada con la evidencia disponible. Cualquier cambio de modelo o umbral se compara en una muestra independiente con la misma métrica.
 
 La brecha observada entre temas fue de 10 puntos porcentuales. Con diez ejemplos por tema, un solo error cambia el recall en 10 puntos. La segmentación evalúa cobertura temática. La muestra carece de atributos y casos suficientes para inferir equidad demográfica. En el piloto se cotejan las etiquetas mediante revisión humana y se amplía el muestreo de los cinco temas con omisiones. Para decisiones por tema, se establece inicialmente un mínimo de 30 negativos por grupo y se revisa la incertidumbre junto con el tamaño de la brecha.
 
